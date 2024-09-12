@@ -1,0 +1,74 @@
+[
+  {
+    "description": null,
+    "translateDescription": false,
+    "inputFieldType": 1,
+    "key": "mailPrefix",
+    "type": 0,
+    "options": 0
+  },
+  {
+    "description": null,
+    "translateDescription": false,
+    "inputFieldType": 1,
+    "key": "mailSuffixCurrent",
+    "type": 0,
+    "options": 0
+  },
+  {
+    "description": null,
+    "translateDescription": false,
+    "inputFieldType": 1,
+    "key": "mailSuffixNew",
+    "type": 0,
+    "options": 0
+  },
+  {
+    "description": null,
+    "translateDescription": false,
+    "inputFieldType": 1,
+    "key": "selectedUser",
+    "type": 0,
+    "options": 0
+  },
+  {
+    "description": null,
+    "translateDescription": false,
+    "inputFieldType": 1,
+    "key": "upnPrefix",
+    "type": 0,
+    "options": 0
+  },
+  {
+    "description": null,
+    "translateDescription": false,
+    "inputFieldType": 1,
+    "key": "upnSuffixCurrent",
+    "type": 0,
+    "options": 0
+  },
+  {
+    "description": null,
+    "translateDescription": false,
+    "inputFieldType": 1,
+    "key": "upnSuffixNew",
+    "type": 0,
+    "options": 0
+  },
+  {
+    "description": null,
+    "translateDescription": false,
+    "inputFieldType": 1,
+    "key": "upnMailEqual",
+    "type": 0,
+    "options": 0
+  },
+  {
+    "description": null,
+    "translateDescription": false,
+    "inputFieldType": 1,
+    "key": "mailNickName",
+    "type": 0,
+    "options": 0
+  }
+]
