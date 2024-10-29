@@ -1,0 +1,326 @@
+[
+  {
+    "label": "Select user account",
+    "fields": [
+      {
+        "key": "searchfield",
+        "templateOptions": {
+          "label": "Search",
+          "placeholder": "Username or Email"
+        },
+        "type": "input",
+        "summaryVisibility": "Hide element",
+        "requiresTemplateOptions": true,
+        "requiresKey": true,
+        "requiresDataSource": false
+      },
+      {
+        "key": "gridUsers",
+        "templateOptions": {
+          "label": "Select user account",
+          "required": true,
+          "grid": {
+            "columns": [
+              {
+                "headerName": "Employee ID",
+                "field": "EmployeeID"
+              },
+              {
+                "headerName": "Display Name",
+                "field": "DisplayName"
+              },
+              {
+                "headerName": "User Principal Name",
+                "field": "UserPrincipalName"
+              },
+              {
+                "headerName": "Mail",
+                "field": "Mail"
+              },
+              {
+                "headerName": "Mail Nickname",
+                "field": "MailNickname"
+              }
+            ],
+            "height": 300,
+            "rowSelection": "single"
+          },
+          "dataSourceConfig": {
+            "dataSourceGuid": "$dataSourceGuid_0",
+            "input": {
+              "propertyInputs": [
+                {
+                  "propertyName": "searchUser",
+                  "otherFieldValue": {
+                    "otherFieldKey": "searchfield"
+                  }
+                }
+              ]
+            }
+          },
+          "useFilter": false,
+          "allowCsvDownload": true
+        },
+        "type": "grid",
+        "summaryVisibility": "Show",
+        "requiresTemplateOptions": true,
+        "requiresKey": true,
+        "requiresDataSource": true
+      }
+    ]
+  },
+  {
+    "label": "Details",
+    "fields": [
+      {
+        "key": "formRowUPN",
+        "templateOptions": {},
+        "fieldGroup": [
+          {
+            "key": "upnPrefix",
+            "templateOptions": {
+              "label": "Current user principal name prefix",
+              "useDependOn": true,
+              "dependOn": "gridUsers",
+              "dependOnProperty": "UserPrincipalNamePrefix",
+              "pattern": "^[a-zA-Z0-9_%+-]+(\\.[a-zA-Z0-9_%+-]+)*",
+              "required": true
+            },
+            "type": "input",
+            "summaryVisibility": "Show",
+            "requiresTemplateOptions": true,
+            "requiresKey": true,
+            "requiresDataSource": false
+          },
+          {
+            "key": "upnSuffixCurrent",
+            "templateOptions": {
+              "label": "Current user principal name suffix",
+              "useDependOn": true,
+              "dependOn": "gridUsers",
+              "dependOnProperty": "UserPrincipalNameSuffix",
+              "readonly": true
+            },
+            "type": "input",
+            "summaryVisibility": "Show",
+            "requiresTemplateOptions": true,
+            "requiresKey": true,
+            "requiresDataSource": false
+          },
+          {
+            "key": "upnSuffixNew",
+            "templateOptions": {
+              "label": "New user principal name suffix",
+              "required": false,
+              "useObjects": false,
+              "useDataSource": false,
+              "useFilter": false,
+              "options": [
+                "@Option1.com",
+                "@Option2.com",
+                "@Option3.com"
+              ]
+            },
+            "type": "dropdown",
+            "summaryVisibility": "Show",
+            "textOrLabel": "text",
+            "requiresTemplateOptions": true,
+            "requiresKey": true,
+            "requiresDataSource": false
+          }
+        ],
+        "type": "formrow",
+        "requiresTemplateOptions": true,
+        "requiresKey": true,
+        "requiresDataSource": false
+      },
+      {
+        "key": "upnMailEqual",
+        "templateOptions": {
+          "label": "User principal name, mail and mail nickname have the same value",
+          "useSwitch": true,
+          "checkboxLabel": ""
+        },
+        "type": "boolean",
+        "defaultValue": true,
+        "summaryVisibility": "Show",
+        "requiresTemplateOptions": true,
+        "requiresKey": true,
+        "requiresDataSource": false
+      },
+      {
+        "key": "formRowMail",
+        "templateOptions": {},
+        "fieldGroup": [
+          {
+            "key": "mailPrefix",
+            "templateOptions": {
+              "label": "Current mail prefix",
+              "useDependOn": true,
+              "dependOn": "gridUsers",
+              "dependOnProperty": "MailPrefix",
+              "readonly": false,
+              "pattern": "^[a-zA-Z0-9_%+-]+(\\.[a-zA-Z0-9_%+-]+)*"
+            },
+            "validation": {
+              "messages": {
+                "pattern": ""
+              }
+            },
+            "hideExpression": "model[\"upnMailEqual\"]",
+            "type": "input",
+            "summaryVisibility": "Show",
+            "requiresTemplateOptions": true,
+            "requiresKey": true,
+            "requiresDataSource": false
+          },
+          {
+            "key": "mailSuffixCurrent",
+            "templateOptions": {
+              "label": "Current mail suffix",
+              "useDependOn": true,
+              "dependOn": "gridUsers",
+              "dependOnProperty": "MailSuffix",
+              "readonly": true
+            },
+            "validation": {
+              "messages": {
+                "pattern": ""
+              }
+            },
+            "hideExpression": "model[\"upnMailEqual\"]",
+            "type": "input",
+            "summaryVisibility": "Show",
+            "requiresTemplateOptions": true,
+            "requiresKey": true,
+            "requiresDataSource": false
+          },
+          {
+            "key": "mailSuffixNew",
+            "templateOptions": {
+              "label": "New mail suffix",
+              "required": false,
+              "useObjects": false,
+              "useDataSource": false,
+              "useFilter": false,
+              "options": [
+                "@Option1.com",
+                "@Option2.com",
+                "@Option3.com"
+              ]
+            },
+            "hideExpression": "model[\"upnMailEqual\"]",
+            "type": "dropdown",
+            "summaryVisibility": "Show",
+            "textOrLabel": "text",
+            "requiresTemplateOptions": true,
+            "requiresKey": true,
+            "requiresDataSource": false
+          }
+        ],
+        "type": "formrow",
+        "requiresTemplateOptions": true,
+        "requiresKey": true,
+        "requiresDataSource": false
+      },
+      {
+        "key": "mailNickName",
+        "templateOptions": {
+          "label": "Current mail nickname",
+          "useDependOn": true,
+          "dependOn": "gridUsers",
+          "dependOnProperty": "MailNickname"
+        },
+        "hideExpression": "model[\"upnMailEqual\"]",
+        "type": "input",
+        "summaryVisibility": "Show",
+        "requiresTemplateOptions": true,
+        "requiresKey": true,
+        "requiresDataSource": false
+      },
+      {
+        "key": "validate",
+        "templateOptions": {
+          "label": "Validation",
+          "readonly": true,
+          "required": true,
+          "pattern": "^Valid.*",
+          "useDataSource": true,
+          "dataSourceConfig": {
+            "dataSourceGuid": "$dataSourceGuid_1",
+            "input": {
+              "propertyInputs": [
+                {
+                  "propertyName": "mailPrefix",
+                  "otherFieldValue": {
+                    "otherFieldKey": "mailPrefix"
+                  }
+                },
+                {
+                  "propertyName": "mailSuffixCurrent",
+                  "otherFieldValue": {
+                    "otherFieldKey": "mailSuffixCurrent"
+                  }
+                },
+                {
+                  "propertyName": "mailSuffixNew",
+                  "otherFieldValue": {
+                    "otherFieldKey": "mailSuffixNew"
+                  }
+                },
+                {
+                  "propertyName": "selectedUser",
+                  "otherFieldValue": {
+                    "otherFieldKey": "gridUsers"
+                  }
+                },
+                {
+                  "propertyName": "upnPrefix",
+                  "otherFieldValue": {
+                    "otherFieldKey": "upnPrefix"
+                  }
+                },
+                {
+                  "propertyName": "upnSuffixCurrent",
+                  "otherFieldValue": {
+                    "otherFieldKey": "upnSuffixCurrent"
+                  }
+                },
+                {
+                  "propertyName": "upnSuffixNew",
+                  "otherFieldValue": {
+                    "otherFieldKey": "upnSuffixNew"
+                  }
+                },
+                {
+                  "propertyName": "upnMailEqual",
+                  "otherFieldValue": {
+                    "otherFieldKey": "upnMailEqual"
+                  }
+                },
+                {
+                  "propertyName": "mailNickName",
+                  "otherFieldValue": {
+                    "otherFieldKey": "mailNickName"
+                  }
+                }
+              ]
+            }
+          },
+          "displayField": "text",
+          "minLength": 1
+        },
+        "validation": {
+          "messages": {
+            "pattern": "No valid value"
+          }
+        },
+        "type": "input",
+        "summaryVisibility": "Show",
+        "requiresTemplateOptions": true,
+        "requiresKey": true,
+        "requiresDataSource": false
+      }
+    ]
+  }
+]

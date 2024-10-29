@@ -1,0 +1,46 @@
+[
+  {
+    "key": "MailSuffix",
+    "type": 0
+  },
+  {
+    "key": "Mail",
+    "type": 0
+  },
+  {
+    "key": "MailNickname",
+    "type": 0
+  },
+  {
+    "key": "MailPrefix",
+    "type": 0
+  },
+  {
+    "key": "DisplayName",
+    "type": 0
+  },
+  {
+    "key": "Id",
+    "type": 0
+  },
+  {
+    "key": "ProxyAddresses",
+    "type": 0
+  },
+  {
+    "key": "UserPrincipalNamePrefix",
+    "type": 0
+  },
+  {
+    "key": "UserPrincipalName",
+    "type": 0
+  },
+  {
+    "key": "EmployeeID",
+    "type": 0
+  },
+  {
+    "key": "UserPrincipalNameSuffix",
+    "type": 0
+  }
+]
