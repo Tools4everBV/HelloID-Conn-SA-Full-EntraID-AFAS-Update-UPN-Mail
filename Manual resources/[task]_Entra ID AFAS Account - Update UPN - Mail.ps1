@@ -1,5 +1,5 @@
 #######################################################################
-# Template: RHo HelloID SA Delegated form task
+# Template: HelloID SA Delegated form task
 # Name:     EntraID-account-update-upn-mail
 # Date:     12-09-2024
 #######################################################################

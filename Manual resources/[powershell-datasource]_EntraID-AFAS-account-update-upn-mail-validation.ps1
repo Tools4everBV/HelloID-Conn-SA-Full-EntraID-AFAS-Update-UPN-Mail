@@ -1,5 +1,5 @@
 #######################################################################
-# Template: RHo HelloID SA Powershell data source
+# Template: HelloID SA Powershell data source
 # Name:     EntraID-AFAS-account-update-upn-mail-validation
 # Date:     12-09-2024
 #######################################################################
