@@ -1,0 +1,42 @@
+[
+    {
+        "description":  null,
+        "translateDescription":  false,
+        "inputFieldType":  1,
+        "key":  "gridUsers",
+        "type":  0,
+        "options":  1
+    },
+    {
+        "description":  null,
+        "translateDescription":  false,
+        "inputFieldType":  1,
+        "key":  "blnMail",
+        "type":  0,
+        "options":  0
+    },
+    {
+        "description":  null,
+        "translateDescription":  false,
+        "inputFieldType":  1,
+        "key":  "NewMail",
+        "type":  0,
+        "options":  0
+    },
+    {
+        "description":  null,
+        "translateDescription":  false,
+        "inputFieldType":  1,
+        "key":  "blnUPN",
+        "type":  0,
+        "options":  0
+    },
+    {
+        "description":  null,
+        "translateDescription":  false,
+        "inputFieldType":  1,
+        "key":  "NewUPN",
+        "type":  0,
+        "options":  0
+    }
+]
