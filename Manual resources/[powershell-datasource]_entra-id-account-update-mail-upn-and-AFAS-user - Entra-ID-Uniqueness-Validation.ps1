@@ -1,7 +1,7 @@
 #######################################################################
 # Template: HelloID SA Powershell data source
-# Name:     EntraId-Get-Active-Users-DisplayName-Mail-Name-UserprincipalName
-# Date:     12-09-2024
+# Name:     entra-id-account-update-mail-upn-and-AFAS-user | Entra-ID-Uniqueness-Validation
+# Date:     18-02-2026
 #######################################################################
 
 # For basic information about powershell data sources see:
@@ -12,12 +12,11 @@
 
 #region init
 
-# Set TLS to accept TLS, TLS 1.1 and TLS 1.2
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12
-
 $VerbosePreference = "SilentlyContinue"
 $InformationPreference = "Continue"
 $WarningPreference = "Continue"
+
+$outputText = [System.Collections.Generic.List[PSCustomObject]]::new()
 
 # global variables (Automation --> Variable library):
 $TenantId = $EntraIdTenantId
@@ -26,8 +25,14 @@ $CertificateBase64String = $EntraIdCertificateBase64String
 $CertificatePassword = $EntraIdCertificatePassword
 
 # variables configured in form:
-$searchValue = $dataSource.searchUser
-$searchQuery = "*$searchValue*"
+$userId = $dataSource.gridUsers.Id
+$mailCurrent = $dataSource.gridUsers.Mail
+$upnCurrent = $dataSource.gridUsers.userPrincipalName
+
+$changeMail = [System.Convert]::ToBoolean($dataSource.blnMail)
+$mailNew = $dataSource.NewMail
+$changeUpn = [System.Convert]::ToBoolean($dataSource.blnUPN)
+$upnNew = $dataSource.NewUPN
 
 #endregion init
 
@@ -174,53 +179,154 @@ function Resolve-MicrosoftGraphAPIError {
 #endregion functions
 
 #region lookup
-try {      
-    # Setup Connection with Entra/Exo
-    Write-Information 'connecting to MS-Entra'
-    $certificate = Get-MSEntraCertificate
-    $entraToken = Get-MSEntraAccessToken -Certificate $certificate
+try {
+    $actionMessage = "validating new UPN and mail values"
+    Write-Information "Validating new UPN and mail values"
+
+    if (-not ($changeMail -or $changeUpn)) {
+        $outputText.Add([PSCustomObject]@{
+                Message  = "Neither UPN nor mail change selected"
+                IsError  = $true
+                Property = "UPN/mail"
+            })
+    }
+
+    if ($changeUpn -and ([string]::IsNullOrWhiteSpace($upnNew) -or ($upnCurrent -eq $upnNew))) {
+        $outputText.Add([PSCustomObject]@{
+                Message  = "UPN [$upnCurrent] not changed or empty"
+                IsError  = $true
+                Property = "UPN"
+            })
+    }
+
+    if ($changeMail -and ([string]::IsNullOrWhiteSpace($mailNew) -or ($mailCurrent -eq $mailNew))) {
+        $outputText.Add([PSCustomObject]@{
+                Message  = "mail [$mailCurrent] not changed or empty"
+                IsError  = $true
+                Property = "mail"
+            })
+    }
     
-    #Add the authorization header to the request
-    $authorization = @{
-        Authorization  = "Bearer $entraToken";
-        'Content-Type' = "application/json";
-        Accept         = "application/json";
-    } 
+    if (-not($outputText.isError -contains - $true)) {
+        $actionMessage = "checking Entra ID for uniqueness"
 
-    $actionMessage = "searching for Entra ID users"
-    Write-Information "Searching for: $searchQuery"
+        # Setup Connection with Entra/Exo
+        Write-Information 'Checking Entra ID for uniqueness, connecting to MS-Entra'
+        $certificate = Get-MSEntraCertificate
+        $entraToken = Get-MSEntraAccessToken -Certificate $certificate
     
-    $baseSearchUri = "https://graph.microsoft.com/"
-    $searchUri = $baseSearchUri + "v1.0/users" + '?$select=Id,userPrincipalName,displayName,EmployeeID,mail' + '&$top=999'
+        #Add the authorization header to the request
+        $authorization = @{
+            Authorization  = "Bearer $entraToken";
+            'Content-Type' = "application/json";
+            Accept         = "application/json";
+        } 
 
-    $entraIDUsersResponse = Invoke-RestMethod -Uri $searchUri -Method Get -Headers $authorization -Verbose:$false
-    $entraIDUsers = $entraIDUsersResponse.value
-    while (![string]::IsNullOrEmpty($entraIDUsersResponse.'@odata.nextLink')) {
-        $entraIDUsersResponse = Invoke-RestMethod -Uri $entraIDUsersResponse.'@odata.nextLink' -Method Get -Headers $authorization -Verbose:$false
-        $entraIDUsers += $entraIDUsersResponse.value
-    }  
+        $graphApiUrl = "https://graph.microsoft.com/v1.0/users"
+        $select = '&$select=id,displayName,userPrincipalName,mail,proxyAddresses' + '&$top=999'
+        
+        # Build filter dynamically based on what's being changed
+        $filterConditions = [System.Collections.Generic.List[string]]::new()
+        if ($changeUpn) {
+            $filterConditions.Add("userPrincipalName eq '$upnNew'")
+            $filterConditions.Add("proxyAddresses/any(p:p eq '$upnNew')")
+        }
+        if ($changeMail) {
+            $filterConditions.Add("mail eq '$mailNew'")
+            $filterConditions.Add("proxyAddresses/any(p:p eq '$mailNew')")
+        }
+        
+        $filter = $filterConditions -join ' or '
+        $searchUri = $graphApiUrl + '?$filter=' + $filter + $select
 
-    $users = foreach ($entraIDUser in $entraIDUsers) {
-        if ($entraIDUser.displayName -like $searchQuery -or $entraIDUser.userPrincipalName -like $searchQuery) {
-            $entraIDUser
+        $entraIDUserParams = @{
+            Uri     = $searchUri
+            Method  = 'Get'
+            Headers = $authorization
+            Verbose = $false
+        }
+
+        $entraIDUsersResponse = Invoke-RestMethod @entraIDUserParams
+
+        $entraIDUsers = $entraIDUsersResponse.value
+        while (![string]::IsNullOrEmpty($entraIDUsersResponse.'@odata.nextLink')) {
+            $entraIDUsersResponse = Invoke-RestMethod -Uri $entraIDUsersResponse.'@odata.nextLink' -Method Get -Headers $authorization -Verbose:$false
+            $entraIDUsers += $entraIDUsersResponse.value
+        }  
+
+        
+        Write-Warning "user: [$($entraIDUsers | ConvertTo-Json)]"
+
+        # Filter out the user that will be updated
+        $filteredEntraIDUsers = $entraIDUsers | Where-Object { $_.id -ne $userId }
+
+        Write-Warning "filteredUsers: [$($filteredEntraIDUsers | ConvertTo-Json)]"
+
+        foreach ($record in $filteredEntraIDUsers) {
+            if ($record.userPrincipalName -eq $upnNew -and $changeUpn) {
+                $outputText.Add([PSCustomObject]@{
+                        Message  = "UPN [$upnNew] not unique, found on [$($record.displayName)]"
+                        IsError  = $true
+                        Property = "UPN"
+                    })
+            }
+            if ($record.mail -eq $mailNew -and $changeMail) {
+                $outputText.Add([PSCustomObject]@{
+                        Message  = "mail [$mailNew] not unique, found on [$($record.displayName)]"
+                        IsError  = $true
+                        Property = "mail"
+                    })
+            }
+            if ((($record.proxyAddresses -eq "SMTP:$mailNew") -or ($record.proxyAddresses -eq "smtp:$mailNew")) -and $changeMail) {
+                $outputText.Add([PSCustomObject]@{
+                        Message  = "ProxyAddress [$mailNew] not unique, found on [$($record.displayName)]"
+                        IsError  = $true
+                        Property = "proxyAddresses"
+                    })
+            }
+            if ((($record.proxyAddresses -eq "SMTP:$upnNew") -or ($record.proxyAddresses -eq "smtp:$upnNew")) -and $changeUpn) {
+                $outputText.Add([PSCustomObject]@{
+                        Message  = "ProxyAddress [$upnNew] not unique, found on [$($record.displayName)]"
+                        IsError  = $true
+                        Property = "proxyAddresses"
+                    })
+            }
+            
         }
     }
-    $users = $users | Sort-Object -Property DisplayName
-    $resultCount = @($users).Count
-    Write-Information "Result count: $resultCount"
 
-    if (($users | Measure-Object).Count -gt 0) {
-        foreach ($user in $users) {
-            $returnObject = @{
-                DisplayName       = $user.DisplayName
-                UserPrincipalName = $user.UserPrincipalName
-                Mail              = $user.mail
-                Id                = $user.Id
-                EmployeeID        = $user.EmployeeID
-            }    
-            Write-Output $returnObject      
+    if ($outputText.isError -contains - $true) {
+        $outputMessage = "Invalid"
+    }
+    else {
+        $outputMessage = "Valid"
+        if ($changeUpn) {
+            $outputText.Add([PSCustomObject]@{
+                    Message  = "UPN [$upnNew] unique"
+                    IsError  = $false
+                    Property = "UPN"
+                })
+        }
+        if ($changeMail) {
+            $outputText.Add([PSCustomObject]@{
+                    Message  = "mail [$mailNew] unique"
+                    IsError  = $false
+                    Property = "mail"
+                })
         }
     }
+
+    foreach ($text in $outputText) {
+        $outputMessage += " | " + $($text.Message)
+    }
+
+    $returnObject = @{
+        text              = $outputMessage
+        userPrincipalName = $upnNew
+        mail              = $mailNew
+    }
+
+    Write-Output $returnObject      
 }
 catch {
     $ex = $PSItem
@@ -236,6 +342,6 @@ catch {
     }
     Write-Warning $warningMessage
     Write-Error $auditMessage
-}
+}  
 #endregion lookup
 
