@@ -191,7 +191,7 @@ try {
     Write-Information "Searching for: $searchQuery"
     
     $baseSearchUri = "https://graph.microsoft.com/"
-    $searchUri = $baseSearchUri + "v1.0/users" + '?$select=Id,userPrincipalName,displayName,EmployeeID,mail' + '&$top=999'
+    $searchUri = $baseSearchUri + "v1.0/users" + '?$select=Id,userPrincipalName,displayName,EmployeeID,mail,mailNickname' + '&$top=999'
 
     $entraIDUsersResponse = Invoke-RestMethod -Uri $searchUri -Method Get -Headers $authorization -Verbose:$false
     $entraIDUsers = $entraIDUsersResponse.value
@@ -215,6 +215,7 @@ try {
                 DisplayName       = $user.DisplayName
                 UserPrincipalName = $user.UserPrincipalName
                 Mail              = $user.mail
+                MailNickname      = $user.mailNickname
                 Id                = $user.Id
                 EmployeeID        = $user.EmployeeID
             }    
@@ -238,4 +239,5 @@ catch {
     Write-Error $auditMessage
 }
 #endregion lookup
+
 

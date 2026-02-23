@@ -34,6 +34,10 @@
                                                                                     "field":  "Mail"
                                                                                 },
                                                                                 {
+                                                                                    "headerName":  "Mail Nickname",
+                                                                                    "field":  "MailNickname"
+                                                                                },
+                                                                                {
                                                                                     "headerName":  "User Principal Name",
                                                                                     "field":  "UserPrincipalName"
                                                                                 },
@@ -77,7 +81,7 @@
                        {
                            "key":  "blnMail",
                            "templateOptions":  {
-                                                   "label":  "Update Email",
+                                                   "label":  "Update email (including mail nickname)",
                                                    "useSwitch":  true,
                                                    "checkboxLabel":  ""
                                                },
@@ -97,7 +101,7 @@
                                               {
                                                   "key":  "CurrentMail",
                                                   "templateOptions":  {
-                                                                          "label":  "Current Email Address",
+                                                                          "label":  "Current email address",
                                                                           "useDataSource":  false,
                                                                           "useDependOn":  true,
                                                                           "dependOn":  "gridUsers",
@@ -244,9 +248,9 @@
                                                                                                              ]
                                                                                       }
                                                                         },
-                                                   "displayField":  "text",
+                                                   "displayField":  "output",
                                                    "minLength":  1,
-                                                   "pattern":  "^Valid.*",
+                                                   "pattern":  "^Valid:[\\s\\S]*",
                                                    "required":  true
                                                },
                            "validation":  {

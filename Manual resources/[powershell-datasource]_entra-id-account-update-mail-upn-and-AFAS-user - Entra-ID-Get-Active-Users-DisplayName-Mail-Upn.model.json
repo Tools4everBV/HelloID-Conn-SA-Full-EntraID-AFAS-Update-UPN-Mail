@@ -1,10 +1,14 @@
 [
     {
-        "key":  "Id",
+        "key":  "Mail",
         "type":  0
     },
     {
-        "key":  "Mail",
+        "key":  "MailNickname",
+        "type":  0
+    },
+    {
+        "key":  "UserPrincipalName",
         "type":  0
     },
     {
@@ -16,7 +20,7 @@
         "type":  0
     },
     {
-        "key":  "UserPrincipalName",
+        "key":  "Id",
         "type":  0
     }
 ]
