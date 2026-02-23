@@ -7,12 +7,13 @@
 ## Description
 _HelloID-Conn-SA-Full-EntraID-AFAS-Update-UPN-Mail_ is a template designed for use with HelloID Service Automation (SA). It can be imported into HelloID and customized according to your requirements. 
 
-By using this delegated form, you can update User Principal Name (UPN) and Mail attributes for users in both Microsoft Entra ID and AFAS Profit. The following options are available:
+By using this delegated form, you can update User Principal Name (UPN), Mail, and Mail Nickname attributes for users in both Microsoft Entra ID and AFAS Profit. The following options are available:
  1. Search and select the user from Entra ID
  2. Enter new values for UPN and/or Mail attributes
- 3. The entered values are validated for uniqueness in Entra ID (checks userPrincipalName, mail, and proxyAddresses)
- 4. UPN and Mail attributes are updated in Entra ID
- 5. Mail attribute (EmAd) is updated in AFAS Profit (if mail change is requested and employeeID is available)
+ 3. Mail Nickname is automatically calculated from the mail address (part before @)
+ 4. The entered values are validated for uniqueness in Entra ID (checks userPrincipalName, mail, mailNickname, and proxyAddresses)
+ 5. UPN, Mail, and Mail Nickname attributes are updated in Entra ID
+ 6. Mail attribute (EmAd) is updated in AFAS Profit (if mail change is requested and employeeID is available)
 
 ## Getting started
 ### Requirements
@@ -59,8 +60,13 @@ The following user-defined variables are used by the connector and should be con
 - **Comprehensive Validation**: Before updating, the connector validates that the new UPN and mail values are unique in Entra ID. This includes checking:
   - `userPrincipalName` attribute
   - `mail` attribute
+  - `mailNickname` attribute (auto-calculated from mail)
   - `proxyAddresses` collection (both SMTP and smtp prefixes)
 - **Self-Exclusion**: The validation excludes the current user from the uniqueness check.
+
+### Mail Nickname Auto-Calculation
+- **Automatic Calculation**: The Mail Nickname is automatically calculated from the new Mail address by extracting the local part (the part before the @ symbol)
+- **User Control**: Users have no direct control over the Mail Nickname value, it is determined automatically by the mail address
 
 ### AFAS Employee Correlation
 - **Employee ID Matching**: The connector correlates Entra ID users to AFAS employees using the `employeeID` attribute in Entra ID, which should match the `Medewerker` field in AFAS.
@@ -73,10 +79,10 @@ The following user-defined variables are used by the connector and should be con
 The following endpoints are used by the connector:
 
 #### Microsoft Graph API (Entra ID)
-| Endpoint         | Method | Description                                     |
-|------------------|--------|-------------------------------------------------|
-| /v1.0/users      | GET    | Retrieve all users (used for search/validation) |
-| /v1.0/users/{id} | PATCH  | Update user attributes (UPN, mail)              |
+| Endpoint         | Method | Description                                      |
+|------------------|--------|--------------------------------------------------|
+| /v1.0/users      | GET    | Retrieve all users (used for search/validation)  |
+| /v1.0/users/{id} | PATCH  | Update user attributes (UPN, mail, mailNickname) |
 
 #### AFAS Profit REST API
 | Endpoint                         | Method | Description                                      |
