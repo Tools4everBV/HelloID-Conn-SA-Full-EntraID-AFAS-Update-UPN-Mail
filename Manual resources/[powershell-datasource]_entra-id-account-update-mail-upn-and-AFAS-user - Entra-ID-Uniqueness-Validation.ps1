@@ -34,6 +34,9 @@ $mailNew = $dataSource.NewMail
 $changeUpn = [System.Convert]::ToBoolean($dataSource.blnUPN)
 $upnNew = $dataSource.NewUPN
 
+# Calculate mailnickname automatically from mail (part before @)
+$mailNicknameNew = if ($changeMail -and -not [string]::IsNullOrWhiteSpace($mailNew)) { $mailNew.Split("@")[0] } else { "" }
+
 #endregion init
 
 #region functions
@@ -180,8 +183,8 @@ function Resolve-MicrosoftGraphAPIError {
 
 #region lookup
 try {
-    $actionMessage = "validating new UPN and mail values"
-    Write-Information "Validating new UPN and mail values"
+    $actionMessage = "validating new UPN, mail, and mail nickname values"
+    Write-Information "Validating new UPN, mail, and mail nickname values"
 
     if (-not ($changeMail -or $changeUpn)) {
         $outputText.Add([PSCustomObject]@{
@@ -191,23 +194,35 @@ try {
             })
     }
 
-    if ($changeUpn -and ([string]::IsNullOrWhiteSpace($upnNew) -or ($upnCurrent -eq $upnNew))) {
+    if ($changeUpn -and $upnCurrent -eq $upnNew) {
         $outputText.Add([PSCustomObject]@{
-                Message  = "UPN [$upnCurrent] not changed or empty"
+                Message  = "UPN [$upnCurrent] not changed"
+                IsError  = $true
+                Property = "UPN"
+            })
+    } elseif ($changeUpn -and [string]::IsNullOrWhiteSpace($upnNew)) {
+        $outputText.Add([PSCustomObject]@{
+                Message  = "UPN [$upnCurrent] is empty"
                 IsError  = $true
                 Property = "UPN"
             })
     }
 
-    if ($changeMail -and ([string]::IsNullOrWhiteSpace($mailNew) -or ($mailCurrent -eq $mailNew))) {
+    if ($changeMail -and $mailCurrent -eq $mailNew) {
         $outputText.Add([PSCustomObject]@{
-                Message  = "mail [$mailCurrent] not changed or empty"
+                Message  = "Mail [$mailCurrent] not changed"
+                IsError  = $true
+                Property = "mail"
+            })
+    } elseif ($changeMail -and [string]::IsNullOrWhiteSpace($mailNew)) {
+        $outputText.Add([PSCustomObject]@{
+                Message  = "Mail [$mailCurrent] is empty"
                 IsError  = $true
                 Property = "mail"
             })
     }
     
-    if (-not($outputText.isError -contains - $true)) {
+    if (-not($outputText.isError -contains $true)) {
         $actionMessage = "checking Entra ID for uniqueness"
 
         # Setup Connection with Entra/Exo
@@ -223,7 +238,7 @@ try {
         } 
 
         $graphApiUrl = "https://graph.microsoft.com/v1.0/users"
-        $select = '&$select=id,displayName,userPrincipalName,mail,proxyAddresses' + '&$top=999'
+        $select = '&$select=id,displayName,userPrincipalName,mail,mailNickname,proxyAddresses' + '&$top=999'
         
         # Build filter dynamically based on what's being changed
         $filterConditions = [System.Collections.Generic.List[string]]::new()
@@ -234,6 +249,7 @@ try {
         if ($changeMail) {
             $filterConditions.Add("mail eq '$mailNew'")
             $filterConditions.Add("proxyAddresses/any(p:p eq '$mailNew')")
+            $filterConditions.Add("mailNickname eq '$mailNicknameNew'")
         }
         
         $filter = $filterConditions -join ' or '
@@ -272,21 +288,28 @@ try {
             }
             if ($record.mail -eq $mailNew -and $changeMail) {
                 $outputText.Add([PSCustomObject]@{
-                        Message  = "mail [$mailNew] not unique, found on [$($record.displayName)]"
+                        Message  = "Mail [$mailNew] not unique, found on [$($record.displayName)]"
                         IsError  = $true
                         Property = "mail"
                     })
             }
+            if ($record.mailNickname -eq $mailNicknameNew -and $changeMail) {
+                $outputText.Add([PSCustomObject]@{
+                        Message  = "Mail nickname [$mailNicknameNew] not unique, found on [$($record.displayName)]"
+                        IsError  = $true
+                        Property = "mailNickname"
+                    })
+            }
             if ((($record.proxyAddresses -eq "SMTP:$mailNew") -or ($record.proxyAddresses -eq "smtp:$mailNew")) -and $changeMail) {
                 $outputText.Add([PSCustomObject]@{
-                        Message  = "ProxyAddress [$mailNew] not unique, found on [$($record.displayName)]"
+                        Message  = "Proxy address [$mailNew] not unique, found on [$($record.displayName)]"
                         IsError  = $true
                         Property = "proxyAddresses"
                     })
             }
             if ((($record.proxyAddresses -eq "SMTP:$upnNew") -or ($record.proxyAddresses -eq "smtp:$upnNew")) -and $changeUpn) {
                 $outputText.Add([PSCustomObject]@{
-                        Message  = "ProxyAddress [$upnNew] not unique, found on [$($record.displayName)]"
+                        Message  = "Proxy address [$upnNew] not unique, found on [$($record.displayName)]"
                         IsError  = $true
                         Property = "proxyAddresses"
                     })
@@ -296,10 +319,10 @@ try {
     }
 
     if ($outputText.isError -contains - $true) {
-        $outputMessage = "Invalid"
+        $outputMessage = "Invalid:"
     }
     else {
-        $outputMessage = "Valid"
+        $outputMessage = "Valid:"
         if ($changeUpn) {
             $outputText.Add([PSCustomObject]@{
                     Message  = "UPN [$upnNew] unique"
@@ -309,24 +332,23 @@ try {
         }
         if ($changeMail) {
             $outputText.Add([PSCustomObject]@{
-                    Message  = "mail [$mailNew] unique"
+                    Message  = "Mail [$mailNew] unique"
                     IsError  = $false
                     Property = "mail"
+                })
+            $outputText.Add([PSCustomObject]@{
+                    Message  = "Mail nickname [$mailNicknameNew] unique"
+                    IsError  = $false
+                    Property = "mailNickname"
                 })
         }
     }
 
     foreach ($text in $outputText) {
-        $outputMessage += " | " + $($text.Message)
+        $outputMessage += "`n" + $($text.Message)
     }
 
-    $returnObject = @{
-        text              = $outputMessage
-        userPrincipalName = $upnNew
-        mail              = $mailNew
-    }
-
-    Write-Output $returnObject      
+    Write-Output $outputMessage      
 }
 catch {
     $ex = $PSItem
@@ -344,4 +366,5 @@ catch {
     Write-Error $auditMessage
 }  
 #endregion lookup
+
 

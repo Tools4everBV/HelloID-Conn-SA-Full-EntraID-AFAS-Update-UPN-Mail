@@ -1,14 +1,6 @@
 [
     {
-        "key":  "mail",
-        "type":  0
-    },
-    {
-        "key":  "text",
-        "type":  0
-    },
-    {
-        "key":  "userPrincipalName",
+        "key":  "output",
         "type":  0
     }
 ]
