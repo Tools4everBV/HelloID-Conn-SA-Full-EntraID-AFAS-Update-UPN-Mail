@@ -35,6 +35,7 @@ $tmpName = @'
 EntraIdTenantId
 '@ 
 $tmpValue = @'
+7bfbcc01-b56d-4ff2-aeea-59214fe2fcdd
 '@ 
 $globalHelloIDVariables.Add([PSCustomObject]@{name = $tmpName; value = $tmpValue; secret = "False"});
 
@@ -50,6 +51,7 @@ $tmpName = @'
 AFASBaseUrl
 '@ 
 $tmpValue = @'
+https://45963.restaccept.afas.online/ProfitRestServices
 '@ 
 $globalHelloIDVariables.Add([PSCustomObject]@{name = $tmpName; value = $tmpValue; secret = "False"});
 
@@ -58,6 +60,7 @@ $tmpName = @'
 EntraIdAppId
 '@ 
 $tmpValue = @'
+aab608c1-5d34-480e-a9f3-6c5ab32f13cc
 '@ 
 $globalHelloIDVariables.Add([PSCustomObject]@{name = $tmpName; value = $tmpValue; secret = "False"});
 
