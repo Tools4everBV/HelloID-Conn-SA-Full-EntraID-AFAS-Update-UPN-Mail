@@ -5,8 +5,10 @@
                        {
                            "key":  "searchfield",
                            "templateOptions":  {
-                                                   "label":  "Search",
-                                                   "placeholder":  "Username or Email"
+                                                   "label":  "Search field (wildcard search in Display name, UserPrincipalName and mail)",
+                                                   "placeholder":  "Display name, UserPrincipalName, or mail (use * to search all users)",
+                                                   "required":  true,
+                                                   "minLength":  1
                                                },
                            "type":  "input",
                            "summaryVisibility":  "Hide element",
@@ -22,28 +24,20 @@
                                                    "grid":  {
                                                                 "columns":  [
                                                                                 {
-                                                                                    "headerName":  "Employee ID",
-                                                                                    "field":  "EmployeeID"
+                                                                                    "headerName":  "Employee Id",
+                                                                                    "field":  "employeeId"
                                                                                 },
                                                                                 {
                                                                                     "headerName":  "Display Name",
-                                                                                    "field":  "DisplayName"
+                                                                                    "field":  "displayName"
                                                                                 },
                                                                                 {
                                                                                     "headerName":  "Mail",
-                                                                                    "field":  "Mail"
-                                                                                },
-                                                                                {
-                                                                                    "headerName":  "Mail Nickname",
-                                                                                    "field":  "MailNickname"
+                                                                                    "field":  "mail"
                                                                                 },
                                                                                 {
                                                                                     "headerName":  "User Principal Name",
-                                                                                    "field":  "UserPrincipalName"
-                                                                                },
-                                                                                {
-                                                                                    "headerName":  "Id",
-                                                                                    "field":  "Id"
+                                                                                    "field":  "userPrincipalName"
                                                                                 }
                                                                             ],
                                                                 "height":  300,
@@ -54,7 +48,7 @@
                                                                             "input":  {
                                                                                           "propertyInputs":  [
                                                                                                                  {
-                                                                                                                     "propertyName":  "searchUser",
+                                                                                                                     "propertyName":  "searchValue",
                                                                                                                      "otherFieldValue":  {
                                                                                                                                              "otherFieldKey":  "searchfield"
                                                                                                                                          }
@@ -105,7 +99,7 @@
                                                                           "useDataSource":  false,
                                                                           "useDependOn":  true,
                                                                           "dependOn":  "gridUsers",
-                                                                          "dependOnProperty":  "Mail",
+                                                                          "dependOnProperty":  "mail",
                                                                           "readonly":  true
                                                                       },
                                                   "hideExpression":  "!model[\"blnMail\"]",
@@ -121,7 +115,7 @@
                                                                           "label":  "New Email Address",
                                                                           "useDependOn":  true,
                                                                           "dependOn":  "gridUsers",
-                                                                          "dependOnProperty":  "Mail",
+                                                                          "dependOnProperty":  "mail",
                                                                           "pattern":  "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
                                                                       },
                                                   "validation":  {
@@ -168,7 +162,7 @@
                                                                           "label":  "Current user principal name",
                                                                           "useDependOn":  true,
                                                                           "dependOn":  "gridUsers",
-                                                                          "dependOnProperty":  "UserPrincipalName",
+                                                                          "dependOnProperty":  "userPrincipalName",
                                                                           "readonly":  true
                                                                       },
                                                   "hideExpression":  "!model[\"blnUPN\"]",
@@ -184,7 +178,7 @@
                                                                           "label":  "New user principal name",
                                                                           "useDependOn":  true,
                                                                           "dependOn":  "gridUsers",
-                                                                          "dependOnProperty":  "UserPrincipalName",
+                                                                          "dependOnProperty":  "userPrincipalName",
                                                                           "pattern":  "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
                                                                       },
                                                   "validation":  {

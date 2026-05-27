@@ -1,6 +1,6 @@
 #######################################################################
 # Template: HelloID SA Delegated form task
-# Name:     Entra ID Account - Update mail/upn & AFAS user
+# Name:     Entra ID AFAS Account - Update mail/upn
 # Date:     18-02-2026
 #######################################################################
 
