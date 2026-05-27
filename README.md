@@ -31,7 +31,6 @@ Once you have completed the Microsoft setup and followed their best practices, c
 
 - **API Permissions** (Application permissions):
   - `User.ReadWrite.All`
-  - `User-Phone.ReadWrite.All`
 
 #### Convert .pfx to base64 string
 
