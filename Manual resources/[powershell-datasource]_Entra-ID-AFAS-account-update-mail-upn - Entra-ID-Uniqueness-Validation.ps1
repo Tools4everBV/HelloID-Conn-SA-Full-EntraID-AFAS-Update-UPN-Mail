@@ -200,7 +200,8 @@ try {
                 IsError  = $true
                 Property = "UPN"
             })
-    } elseif ($changeUpn -and [string]::IsNullOrWhiteSpace($upnNew)) {
+    }
+    elseif ($changeUpn -and [string]::IsNullOrWhiteSpace($upnNew)) {
         $outputText.Add([PSCustomObject]@{
                 Message  = "UPN [$upnCurrent] is empty"
                 IsError  = $true
@@ -214,7 +215,8 @@ try {
                 IsError  = $true
                 Property = "mail"
             })
-    } elseif ($changeMail -and [string]::IsNullOrWhiteSpace($mailNew)) {
+    }
+    elseif ($changeMail -and [string]::IsNullOrWhiteSpace($mailNew)) {
         $outputText.Add([PSCustomObject]@{
                 Message  = "Mail [$mailCurrent] is empty"
                 IsError  = $true
