@@ -1,7 +1,7 @@
 # HelloID-Conn-SA-Full-EntraID-AFAS-Update-UPN-Mail
 
 | :information_source: Information                                                                                                                                                                                                                                                                                                                                                          |
-| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | This repository contains the connector and configuration code only. The implementer is responsible for acquiring the connection details such as username, password, certificate, etc. You might even need to sign a contract or agreement with the supplier before implementing this connector. Please contact the client's application manager to coordinate the connector requirements. |
 
 ## Description
@@ -47,7 +47,10 @@ $fileContentBytes = [System.IO.File]::ReadAllBytes("$pfxPath")
 
 ##### AFAS Profit API Access:
   Access to the AFAS Profit API is required with:
-  - A valid AFAS token for authentication
+  - An AFAS AppConnector configured for OAuth client credentials (OAuth-only)
+  - AFAS OAuth credentials:
+    - ClientId
+    - ClientSecret
   - Access to the `T4E_HelloID_Users_v2` GET connector: [HelloID-Conn-Prov-Target-AFAS-Profit-Employees](https://github.com/Tools4everBV/HelloID-Conn-Prov-Target-AFAS-Profit-Employees)
   - Access to the `KnEmployee` UPDATE connector for updating employee records
 
@@ -57,17 +60,18 @@ The following user-defined variables are used by the connector and should be con
 
 #### Entra ID Settings
 | Setting                        | Description                                                        | Mandatory |
-| ------------------------------ | ------------------------------------------------------------------ | --------- |
+|--------------------------------|--------------------------------------------------------------------|-----------|
 | EntraIdTenantId                | The Tenant ID of your Entra ID environment                         | Yes       |
 | EntraIdAppId                   | The Application (Client) ID of the App Registration                | Yes       |
 | EntraIdCertificateBase64String | The certificate as a base64-encoded string (including private key) | Yes       |
 | EntraIdCertificatePassword     | The password for the certificate                                   | Yes       |
 
 #### AFAS Settings
-| Setting     | Description                                                                                          | Mandatory |
-| ----------- | ---------------------------------------------------------------------------------------------------- | --------- |
-| AFASBaseUrl | The base URL to the AFAS Profit REST API (e.g., `https://12345.rest.afas.online/profitrestservices`) | Yes       |
-| AFASToken   | The AFAS token for authentication                                                                    | Yes       |
+| Setting          | Description                                                                                          | Mandatory |
+|------------------|------------------------------------------------------------------------------------------------------|-----------|
+| AFASBaseUrl      | The base URL to the AFAS Profit REST API (e.g., `https://12345.rest.afas.online/profitrestservices`) | Yes       |
+| AFASClientId     | The OAuth ClientId for AFAS Profit authentication                                                    | Yes       |
+| AFASClientSecret | The OAuth ClientSecret for AFAS Profit authentication                                                | Yes       |
 
 ## Remarks
 
@@ -99,13 +103,14 @@ The following endpoints are used by the connector:
 
 #### Microsoft Graph API (Entra ID)
 | Endpoint         | Method | Description                                      |
-| ---------------- | ------ | ------------------------------------------------ |
+|------------------|--------|--------------------------------------------------|
 | /v1.0/users      | GET    | Retrieve all users (used for search/validation)  |
 | /v1.0/users/{id} | PATCH  | Update user attributes (UPN, mail, mailNickname) |
 
 #### AFAS Profit REST API
 | Endpoint                         | Method | Description                                      |
-| -------------------------------- | ------ | ------------------------------------------------ |
+|----------------------------------|--------|--------------------------------------------------|
+| /oauth/token                     | POST   | Retrieve OAuth access token (client credentials) |
 | /connectors/T4E_HelloID_Users_v2 | GET    | Retrieve employee information (custom connector) |
 | /connectors/KnEmployee           | PUT    | Update employee records (mail attribute)         |
 
