@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file. The format 
 ## [3.0.0] - 29-09-2026
 
 ### Changed
-- Changed authentication to OAuth (breaking: `Token` configuration field replaced by `ClientId` and `ClientSecret`)
+- Changed authentication to OAuth client credentials (breaking: `AFASToken` global variable replaced by `AFASClientId` and `AFASClientSecret`)
 
 ## [2.0.0] - 27-05-2026
 
