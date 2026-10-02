@@ -25,7 +25,8 @@ $CertificatePassword = $EntraIdCertificatePassword
 
 # AFAS
 $BaseUrl = $AFASBaseUrl
-$Token = $AFASToken
+$ClientId = $AFASClientId
+$ClientSecret = $AFASClientSecret
 
 # variables configured in form:
 $entraidGUID = $form.gridUsers.Id
@@ -349,10 +350,21 @@ if ($changeMail -and -not([string]::IsNullOrEmpty($employeeID))) {
         
         Write-Information "Querying AFAS employee with $($filterfieldid) $($filtervalue)"
 
+        # Obtain OAuth access token
+        $tokenUri = "$BaseUrl/oauth/token"
+        $tokenRequestBody = @{
+            grant_type    = 'client_credentials'
+            client_id     = $ClientId
+            client_secret = $ClientSecret
+        }
+        $tokenResponse = Invoke-RestMethod -Method Post -Uri $tokenUri -Body $tokenRequestBody -ContentType 'application/x-www-form-urlencoded' -UseBasicParsing
+
+        if ([String]::IsNullOrWhiteSpace([String]$tokenResponse.token_type) -or ([String]$tokenResponse.token_type).ToLowerInvariant() -ne 'bearer') {
+            throw "OAuth token endpoint returned an unexpected token_type [$($tokenResponse.token_type)]. Expected [Bearer]."
+        }
+        
         # Create authorization headers
-        $encodedToken = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($Token))
-        $authValue = "AfasToken $encodedToken"
-        $Headers = @{ Authorization = $authValue }
+        $Headers = @{ Authorization = "$($tokenResponse.token_type) $($tokenResponse.access_token)" }
 
         $splatWebRequest = @{
             Uri             = $BaseUrl + "/connectors/" + $getConnector + "?filterfieldids=$filterfieldid&filtervalues=$filtervalue&operatortypes=1"
@@ -503,5 +515,3 @@ else {
     Write-Information -Tags "Audit" -MessageData $log 
 }
 #endregion AFAS
-
-
