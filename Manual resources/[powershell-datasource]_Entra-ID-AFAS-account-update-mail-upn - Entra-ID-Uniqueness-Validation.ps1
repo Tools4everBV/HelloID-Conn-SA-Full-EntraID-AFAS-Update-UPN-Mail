@@ -29,9 +29,9 @@ $userId = $dataSource.gridUsers.Id
 $mailCurrent = $dataSource.gridUsers.Mail
 $upnCurrent = $dataSource.gridUsers.userPrincipalName
 
-$changeMail = [System.Convert]::ToBoolean($dataSource.blnMail)
+$changeMail = if ([string]::IsNullOrWhiteSpace($dataSource.blnMail)) { $false } else { [System.Convert]::ToBoolean($dataSource.blnMail) }
 $mailNew = $dataSource.NewMail
-$changeUpn = [System.Convert]::ToBoolean($dataSource.blnUPN)
+$changeUpn = if ([string]::IsNullOrWhiteSpace($dataSource.blnUPN)) { $false } else { [System.Convert]::ToBoolean($dataSource.blnUPN) }
 $upnNew = $dataSource.NewUPN
 
 # Calculate mailnickname automatically from mail (part before @)
