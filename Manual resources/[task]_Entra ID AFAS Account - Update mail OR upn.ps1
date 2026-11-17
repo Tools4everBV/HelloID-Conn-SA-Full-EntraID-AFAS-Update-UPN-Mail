@@ -34,12 +34,12 @@ $displayName = $form.gridUsers.DisplayName
 $employeeID = $form.gridUsers.employeeID
 
 $currentUPN = $form.gridUsers.UserPrincipalName
-$changeUpn = [System.Convert]::ToBoolean($form.blnUPN)
+$changeUpn = if ([string]::IsNullOrWhiteSpace($form.blnUPN)) { $false } else { [System.Convert]::ToBoolean($form.blnUPN) }
 $newUPN = $form.NewUPN
 
 $currentMail = $form.gridUsers.Mail
 $currentMailNickname = $form.gridUsers.MailNickname
-$changeMail = [System.Convert]::ToBoolean($form.blnMail)
+$changeMail = if ([string]::IsNullOrWhiteSpace($form.blnMail)) { $false } else { [System.Convert]::ToBoolean($form.blnMail) }
 $newMail = $form.NewMail
 
 #endregion init
